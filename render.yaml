@@ -1,0 +1,48 @@
+# Klear And Klarity - backend on Render
+#
+# Create the blueprint at https://render.com/blueprint  or push this file and pick
+# "New > Blueprint" in the dashboard.
+#
+# DATABASE: Render has no MySQL. Create a free MySQL-compatible cluster first
+# (TiDB Cloud Starter needs no card) and set its values as the DB_* environment
+# variables below, either in the dashboard or in a .env file next to this one.
+
+services:
+  - type: web
+    name: klear-and-klarity-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    region: singapore
+    healthCheckPath: /api/public/settings
+    envVars:
+      - key: DB_URL
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      # Real environment variables win over backend/.env, so these are what the
+      # deployed app actually reads.
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRATION_MINUTES
+        value: "720"
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_FROM_NAME
+        value: Klear And Klarity
+      - key: MAIL_FROM_ADDRESS
+        sync: false
+      # Must be the deployed Cloudflare Pages URL. Comma-separate to allow several.
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false
+      - key: MAIL_BASE_URL
+        sync: false
+      # Leave blank so email verification turns on automatically once the two
+      # MAIL_* values above are present.
+      - key: MAIL_VERIFICATION_REQUIRED
+        value: ""

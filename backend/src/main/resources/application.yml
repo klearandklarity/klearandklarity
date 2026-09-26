@@ -1,0 +1,71 @@
+server:
+  port: ${SERVER_PORT:8080}
+  error:
+    include-message: always
+
+spring:
+  application:
+    name: klearity-guidance
+
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/klearity?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      connection-timeout: 20000
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: false
+        jdbc:
+          time_zone: UTC
+        dialect: org.hibernate.dialect.MySQLDialect
+    show-sql: false
+
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 10000
+          timeout: 10000
+          writetimeout: 10000
+
+app:
+  jwt:
+    # CHANGE THIS in production. Override with env var JWT_SECRET.
+    secret: ${JWT_SECRET:klearity-dev-secret-key-please-change-this-to-a-long-random-string-0123456789}
+    expiration-minutes: ${JWT_EXPIRATION_MINUTES:720}
+  mail:
+    from-name: ${MAIL_FROM_NAME:Klear And Klarity}
+    from-address: ${MAIL_FROM_ADDRESS:noreply@klearity.com}
+    # Base URL used inside verification / reset links.
+    base-url: ${MAIL_BASE_URL:http://localhost:5173}
+    # true / false to force the behaviour. Leave blank for auto: verification is
+    # enforced only once SMTP credentials are configured.
+    verification-required: ${MAIL_VERIFICATION_REQUIRED:}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://127.0.0.1:5173,http://localhost:4173}
+
+logging:
+  level:
+    root: INFO
+    com.klarity: INFO
+    org.hibernate.SQL: WARN

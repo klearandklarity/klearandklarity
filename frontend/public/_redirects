@@ -1,0 +1,4 @@
+# Cloudflare Pages serves static files only, so every unknown path has to be handed
+# to index.html for React Router to resolve it. Without this, a refresh on
+# /careers or /admin/dashboard returns a 404.
+/*    /index.html   200
