@@ -1,5 +1,10 @@
-# Render builds and runs this. A Dockerfile is used instead of a build command so the
-# JDK, Maven and the build cache behave the same way on every deploy.
+# Optional alternative to render.yaml's native runtime, for when you would rather
+# pin the JDK and Maven versions. Render picks this up when a service's runtime is
+# set to "Docker" and the context is ./backend.
+#
+# Note: written but not built locally, because Docker is not installed on the
+# machine this was authored on. The native buildCommand path in render.yaml is the
+# one that has been exercised.
 FROM maven:3.9-eclipse-temurin-21 AS build
 
 WORKDIR /build

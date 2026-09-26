@@ -1,30 +1,37 @@
 # Klear And Klarity - backend on Render
 #
-# Create the blueprint at https://render.com/blueprint  or push this file and pick
-# "New > Blueprint" in the dashboard.
+# Create the blueprint at https://render.com/blueprint, or push this file and pick
+# "New > Blueprint" in the dashboard. Paths are relative to the repo root.
 #
-# DATABASE: Render has no MySQL. Create a free MySQL-compatible cluster first
-# (TiDB Cloud Starter needs no card) and set its values as the DB_* environment
-# variables below, either in the dashboard or in a .env file next to this one.
+# DATABASE: Render does not host MySQL. Create a free MySQL-compatible cluster first
+# (TiDB Cloud Starter needs no card) and fill in the DB_* values marked sync: false,
+# either in the dashboard or in a .env file next to this one.
+#
+# runtime: native means Render's own build image does the work, so no Docker is
+# needed. backend/Dockerfile is an alternative if you would rather pin the JDK.
 
 services:
   - type: web
     name: klear-and-klarity-api
-    runtime: docker
-    dockerfilePath: ./backend/Dockerfile
-    dockerContext: ./backend
+    runtime: native
     plan: free
     region: singapore
+    buildCommand: cd backend && ./mvnw -B -DskipTests package
+    # The free tier has 512 MB, so cap the heap and leave room for Metaspace and
+    # direct byte buffers. UseSerialGC keeps pause times short on a 0.1 CPU share.
+    startCommand: >-
+      java -Xmx320m -XX:MaxMetaspaceSize=128m -XX:+UseSerialGC
+      -jar backend/target/guidance-plus-1.0.0.jar
     healthCheckPath: /api/public/settings
     envVars:
+      # These are the values the deployed app reads. Real environment variables win
+      # over backend/.env, so backend/.env does not need to exist on the server.
       - key: DB_URL
         sync: false
       - key: DB_USERNAME
         sync: false
       - key: DB_PASSWORD
         sync: false
-      # Real environment variables win over backend/.env, so these are what the
-      # deployed app actually reads.
       - key: JWT_SECRET
         generateValue: true
       - key: JWT_EXPIRATION_MINUTES
@@ -42,7 +49,7 @@ services:
         sync: false
       - key: MAIL_BASE_URL
         sync: false
-      # Leave blank so email verification turns on automatically once the two
-      # MAIL_* values above are present.
+      # Blank turns email verification on automatically once MAIL_USERNAME and
+      # MAIL_PASSWORD are both present.
       - key: MAIL_VERIFICATION_REQUIRED
         value: ""
