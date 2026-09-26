@@ -1,3 +1,0 @@
-{
-  "javaArgs": "-Xmx320m -XX:MaxMetaspaceSize=128m -XX:+UseSerialGC -Dserver.port=$PORT -jar target/guidance-plus-1.0.0.jar"
-}
