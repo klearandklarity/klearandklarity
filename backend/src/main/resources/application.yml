@@ -1,5 +1,8 @@
 server:
-  port: ${SERVER_PORT:8080}
+  # SERVER_PORT wins, then PORT (what Zeabur, Render, Railway, Fly and most PaaS
+  # inject), then the local default. Without the PORT fallback the app binds 8080
+  # while the platform expects its own assigned port, and every request 404s.
+  port: ${SERVER_PORT:${PORT:8080}}
   error:
     include-message: always
 

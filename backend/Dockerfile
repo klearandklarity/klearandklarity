@@ -29,10 +29,13 @@ COPY --from=build /build/target/*.jar app.jar
 RUN chown klarity:klarity app.jar
 USER klarity
 
-# Render sets PORT automatically. The free tier only has 512 MB, so cap the heap
-# below that and leave room for the JVM, Metaspace and the direct byte buffers.
+# PaaS platforms (Zeabur, Render, Railway, Fly, ClawCloud) inject PORT, not
+# SERVER_PORT. application.yml falls back to PORT, so the plain start command is
+# enough; -Dserver.port is repeated here so a container that is run by hand with
+# a custom PORT also lands on the right port.
 ENV JAVA_OPTS="-Xmx320m -XX:MaxMetaspaceSize=128m -XX:+UseSerialGC -Djava.security.egd=file:/dev/./urandom"
+ENV SERVER_PORT=8080
 
 EXPOSE 8080
 
-CMD ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+CMD ["sh", "-c", "java $JAVA_OPTS -Dserver.port=${PORT:-$SERVER_PORT} -jar app.jar"]

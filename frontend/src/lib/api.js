@@ -2,7 +2,7 @@ import axios from 'axios'
 
 // Local dev: Vite proxies /api to localhost:8080 (see vite.config.js).
 // Deployed: set VITE_API_URL to the backend origin, e.g.
-// https://klear-and-klarity-api.onrender.com/api
+// https://klear-and-klarity-api.zeabur.zeabur.app/api
 const baseURL = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '')
 
 const api = axios.create({
