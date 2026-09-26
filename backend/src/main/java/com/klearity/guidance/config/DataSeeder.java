@@ -12,7 +12,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.io.InputStream;
 import java.util.*;
@@ -38,6 +39,7 @@ public class DataSeeder implements CommandLineRunner {
     private final PasswordEncoder passwordEncoder;
     private final CareerService careerService;
     private final ObjectMapper objectMapper;
+    private final PlatformTransactionManager transactionManager;
 
     public static final String ADMIN_EMAIL = "admin@klearity.com";
     public static final String ADMIN_PASSWORD = "Admin@123";
@@ -104,9 +106,23 @@ public class DataSeeder implements CommandLineRunner {
             new String[]{"General Discussion", "Anything else worth talking about.", "slate", "8"}
     );
 
+    /**
+     * The seed is a convenience, not a startup requirement: if it fails the app still serves
+     * traffic, so a bad DB_URL or a missing privilege shows up as a logged cause instead of
+     * a deploy that boots and dies. Fix the cause and restart to seed.
+     */
     @Override
-    @Transactional
     public void run(String... args) {
+        try {
+            new TransactionTemplate(transactionManager).executeWithoutResult(status -> seed());
+        } catch (RuntimeException e) {
+            log.error("Seeding failed, so no built-in content was loaded by this start. "
+                    + "The app is still running. Check DB_URL / DB_USERNAME / DB_PASSWORD, that the "
+                    + "database is writable by that user, and the Hibernate schema log above.", e);
+        }
+    }
+
+    private void seed() {
         seedSettings();
         migrateBrandName();
         seedClasses();

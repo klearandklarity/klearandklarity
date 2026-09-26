@@ -23,6 +23,10 @@ spring:
     properties:
       hibernate:
         format_sql: false
+        # Hibernate logs failed DDL and carries on by default, which leaves a half-created
+        # schema that only surfaces later as "table doesn't exist" from a repository call.
+        # Aborting the boot here makes the real cause visible instead.
+        hbm2ddl.halt_on_error: true
         jdbc:
           time_zone: UTC
         dialect: org.hibernate.dialect.MySQLDialect
